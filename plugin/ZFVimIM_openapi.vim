@@ -131,7 +131,7 @@ function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
     endif
 
     " update IME popup
-    if a:key == s:keyLatest
+    if a:key == s:keyLatest && pumvisible()
         call ZFVimIME_keymap_update_i()
     endif
 endfunction
