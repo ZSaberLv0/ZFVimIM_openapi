@@ -7,7 +7,11 @@ function! s:apiGetter(key, option)
     if empty(g:ZFVimIM_openapi_http_exe)
         return ''
     endif
-    return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . a:key . '"'
+    let l:key = a:key
+    if exists('g:ZFVimIM_xiaohe') && g:ZFVimIM_xiaohe > 0
+      let l:key = xiaohe#line_to_pinyin(l:key)
+    endif
+    return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . l:key . '"'
 endfunction
 
 " {"0":[[["我的",4,{"pinyin":"wo'de","type":"IMEDICT"}]]],"1":"wo'de","result":[null]}
