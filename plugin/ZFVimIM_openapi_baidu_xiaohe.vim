@@ -29,7 +29,7 @@ function! s:outputParser(key, option, outputList)
         return []
     endif
     return [{
-                \   'priority' : 50,
+                \   'priority' : get(g:, 'ZFVimIM_openapi_priority', 50),
                 \   'len' : len(a:key),
                 \   'key' : a:key,
                 \   'word' : word,
