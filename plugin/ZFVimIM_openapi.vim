@@ -1,6 +1,9 @@
 
 " {
 "   'YourModuleName' : {
+"     // (optional) whether enable
+"     'enable' : 1,
+"
 "     // return the jobCmd
 "     'apiGetter' : func(key, option),
 "
@@ -75,6 +78,9 @@ endif
 let s:keyLatest = ''
 function! s:updateWithCache(ret, moduleName, key, option)
     let module = g:ZFVimIM_openapi[a:moduleName]
+    if !get(module, 'enable', 1)
+        return
+    endif
     let Cmd = ZFJobFuncCall(module['apiGetter'], [a:key, a:option])
     if empty(Cmd)
         return

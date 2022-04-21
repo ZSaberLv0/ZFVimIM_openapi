@@ -1,5 +1,5 @@
 
-if !exists('*json_decode') || !get(g:, 'ZFVimIM_openapi_baidu', 1)
+if !exists('*json_decode') || !get(g:, 'ZFVimIM_openapi_baidu_xiaohe', 0)
     finish
 endif
 
@@ -7,7 +7,7 @@ function! s:apiGetter(key, option)
     if empty(g:ZFVimIM_openapi_http_exe)
         return ''
     endif
-    return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . a:key . '"'
+    return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . xiaohe#line_to_pinyin(a:key) . '"'
 endfunction
 
 " {"0":[[["我的",4,{"pinyin":"wo'de","type":"IMEDICT"}]]],"1":"wo'de","result":[null]}
@@ -40,7 +40,7 @@ endfunction
 if !exists('g:ZFVimIM_openapi')
     let g:ZFVimIM_openapi = {}
 endif
-let g:ZFVimIM_openapi['baidu'] = {
+let g:ZFVimIM_openapi['baidu_xiaohe'] = {
             \   'apiGetter' : function('s:apiGetter'),
             \   'outputParser' : function('s:outputParser'),
             \ }
