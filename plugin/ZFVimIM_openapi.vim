@@ -19,7 +19,7 @@ endif
 
 if !exists('g:ZFVimIM_openapi_http_exe')
     if executable('wget')
-        let g:ZFVimIM_openapi_http_exe = 'wget -qO - --timeout 20 -t 10'
+        let g:ZFVimIM_openapi_http_exe = 'wget -q -O - --timeout 2 -t 1'
     elseif executable('curl')
         let g:ZFVimIM_openapi_http_exe = 'curl -s'
     else
