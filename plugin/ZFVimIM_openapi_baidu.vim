@@ -32,7 +32,7 @@ function! s:outputParser(key, option, outputList)
                 \   'len' : len(a:key),
                 \   'key' : a:key,
                 \   'word' : word,
-                \   'type' : get(g:, 'ZFVimIM_openapi_word_type', 'sentence'),
+                \   'type' : get(g:, 'ZFVimIM_openapi_word_type', 'match'),
                 \ }]
 endfunction
 
