@@ -46,7 +46,7 @@ endfunction
 function! s:dbInit()
     if !ZFVimIM_json_available() || !(
                 \   (exists('*ZFJobAvailable') && ZFJobAvailable())
-                \   || (exists('*ZFJobTimerAvailable') && ZFJobTimerAvailable() && get(g:, 'ZFVimIM_openapi_jobFallback', 1))
+                \   || (exists('*ZFJobTimerAvailable') && ZFJobTimerAvailable() && get(g:, 'ZFVimIM_openapi_jobFallback', 0))
                 \ )
         return
     endif
@@ -104,11 +104,29 @@ function! s:updateWithCache(ret, moduleName, key, option)
     if get(moduleState['updating'], a:key, 0)
         return
     endif
-    let jobId = ZFJobStart({
+    let moduleState['updating'][a:key] = 1
+
+    let jobList = []
+    if !ZFJobAvailable()
+        " delay to reduce blink
+        call add(jobList, {
+                    \   'jobCmd' : 0,
+                    \ })
+    endif
+    call add(jobList, {
                 \   'jobCmd' : Cmd,
                 \   'onExit' : ZFJobFunc(function('s:updateOnFinish'), [a:key, a:option, a:moduleName]),
                 \ })
-    let moduleState['updating'][a:key] = 1
+    if !ZFJobAvailable()
+        " delay to make omni popup work
+        call add(jobList, {
+                    \   'jobCmd' : 0,
+                    \ })
+    endif
+    call ZFGroupJobStart({
+                \   'jobList' : jobList,
+                \   'onExit' : ZFJobFunc(function('s:updatePopup'), [a:key, a:option, a:moduleName]),
+                \ })
 endfunction
 
 function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
@@ -138,7 +156,9 @@ function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
             endif
         endfor
     endif
+endfunction
 
+function! s:updatePopup(key, option, moduleName, jobStatus, exitCode)
     " update IME popup
     if a:key == s:keyLatest
         call ZFVimIME_keymap_update_i()

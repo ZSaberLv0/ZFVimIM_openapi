@@ -6,7 +6,7 @@ using thirdparty's openapi
 # Requirement
 
 * `ZSaberLv0/ZFVimIM`, of course
-* `ZSaberLv0/ZFVimJob`, and `ZFJobAvailable() || ZFJobTimerAvailable()` must return 1
+* `ZSaberLv0/ZFVimJob`, and `ZFJobAvailable()` must return 1
 * `wget` or `curl`
 
 
