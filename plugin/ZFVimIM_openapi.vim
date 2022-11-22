@@ -26,7 +26,7 @@ if !exists('g:ZFVimIM_openapi_http_exe')
         let g:ZFVimIM_openapi_http_exe = ''
     endif
 endif
-if empty(g:ZFVimIM_openapi_http_exe) || !exists('*json_decode')
+if empty(g:ZFVimIM_openapi_http_exe)
     finish
 endif
 
@@ -44,7 +44,10 @@ function! ZFVimIM_openapi_complete(key, option)
 endfunction
 
 function! s:dbInit()
-    if !exists('*ZFJobAvailable') || !ZFJobAvailable()
+    if !ZFVimIM_json_available() || !(
+                \   (exists('*ZFJobAvailable') && ZFJobAvailable())
+                \   || (exists('*ZFJobTimerAvailable') && ZFJobTimerAvailable() && get(g:, 'ZFVimIM_openapi_jobFallback', 1))
+                \ )
         return
     endif
     call ZFVimIM_dbInit({

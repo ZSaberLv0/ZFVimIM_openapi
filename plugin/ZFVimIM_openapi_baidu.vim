@@ -1,10 +1,10 @@
 
-if !exists('*json_decode') || !get(g:, 'ZFVimIM_openapi_baidu', 1)
+if !get(g:, 'ZFVimIM_openapi_baidu', 1)
     finish
 endif
 
 function! s:apiGetter(key, option)
-    if empty(g:ZFVimIM_openapi_http_exe)
+    if empty(g:ZFVimIM_openapi_http_exe) || !ZFVimIM_json_available()
         return ''
     endif
     return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . a:key . '"'
@@ -18,7 +18,7 @@ function! s:outputParser(key, option, outputList)
         return []
     endif
     try
-        let data = json_decode(output)
+        let data = ZFVimIM_json_decode(output)
     catch
         return []
     endtry
