@@ -7,6 +7,8 @@ using thirdparty's openapi
 
 * `ZSaberLv0/ZFVimIM`, of course
 * `ZSaberLv0/ZFVimJob`, and `ZFJobAvailable()` must return 1
+    * a builtin fallback is also implemented, enable it by `let g:ZFVimIM_openapi_jobFallback = 1`,
+        but it may cause lag if no `ZFJobAvailable()` support
 * `wget` or `curl`
 
 

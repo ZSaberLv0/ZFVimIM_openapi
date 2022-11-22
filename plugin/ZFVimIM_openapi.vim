@@ -31,24 +31,38 @@ if empty(g:ZFVimIM_openapi_http_exe)
 endif
 
 " ============================================================
+if !exists('s:fallbackMode')
+    let s:fallbackMode = 1
+endif
 function! ZFVimIM_openapi_complete(key, option)
     if !get(g:, 'ZFVimIM_openapi_enable', 1)
         return []
     endif
     let s:keyLatest = a:key
     let ret = []
-    for moduleName in keys(g:ZFVimIM_openapi)
-        call s:updateWithCache(ret, moduleName, a:key, a:option)
-    endfor
+    if s:fallbackMode
+        for moduleName in keys(g:ZFVimIM_openapi)
+            call s:fallback(ret, moduleName, a:key, a:option)
+        endfor
+    else
+        for moduleName in keys(g:ZFVimIM_openapi)
+            call s:updateWithCache(ret, moduleName, a:key, a:option)
+        endfor
+    endif
     return ret
 endfunction
 
 function! s:dbInit()
     if !ZFVimIM_json_available() || !(
                 \   (exists('*ZFJobAvailable') && ZFJobAvailable())
-                \   || (exists('*ZFJobTimerAvailable') && ZFJobTimerAvailable() && get(g:, 'ZFVimIM_openapi_jobFallback', 0))
+                \   || get(g:, 'ZFVimIM_openapi_jobFallback', 0)
                 \ )
         return
+    endif
+    if exists('*ZFJobAvailable') && (ZFJobAvailable() || has('timers'))
+        let s:fallbackMode = 0
+    else
+        let s:fallbackMode = 1
     endif
     call ZFVimIM_dbInit({
                 \   'name' : 'openapi',
@@ -62,6 +76,22 @@ augroup ZFVimIM_openapi_augroup
     autocmd!
     autocmd User ZFVimIM_event_OnDbInit call s:dbInit()
 augroup END
+
+" ============================================================
+" fallback impl, sync, may block
+function! s:fallback(ret, moduleName, key, option)
+    let module = g:ZFVimIM_openapi[a:moduleName]
+    if !get(module, 'enable', 1)
+        return
+    endif
+    let Cmd = ZFJobFuncCall(module['apiGetter'], [a:key, a:option])
+    if empty(Cmd)
+        return
+    endif
+    let output = split(system(Cmd), '[\r\n]')
+    let result = ZFJobFuncCall(module['outputParser'], [a:key, a:option, output])
+    call extend(a:ret, result)
+endfunction
 
 " ============================================================
 " {
