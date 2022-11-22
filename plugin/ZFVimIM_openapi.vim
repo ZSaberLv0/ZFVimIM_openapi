@@ -106,7 +106,7 @@ function! s:updateWithCache(ret, moduleName, key, option)
     endif
     let jobId = ZFJobStart({
                 \   'jobCmd' : Cmd,
-                \   'onExit' : ZFJobFunc(function('s:updateOnFinish', [a:key, a:option, a:moduleName])),
+                \   'onExit' : ZFJobFunc(function('s:updateOnFinish'), [a:key, a:option, a:moduleName]),
                 \ })
     let moduleState['updating'][a:key] = 1
 endfunction
