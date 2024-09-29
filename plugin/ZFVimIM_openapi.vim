@@ -162,6 +162,7 @@ endfunction
 function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
     let moduleState = get(s:state, a:moduleName, {})
     if empty(moduleState)
+        let a:jobStatus['exitCode'] = 'invalid_state'
         return
     endif
     if exists("moduleState['updating'][a:key]")
@@ -171,6 +172,7 @@ function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
     " parse result
     let result = ZFJobFuncCall(g:ZFVimIM_openapi[a:moduleName]['outputParser'], [a:key, a:option, a:jobStatus['jobOutput']])
     if empty(result)
+        let a:jobStatus['exitCode'] = 'invalid_response'
         return
     endif
 
