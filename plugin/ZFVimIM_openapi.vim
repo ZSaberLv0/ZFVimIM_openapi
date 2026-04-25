@@ -17,6 +17,10 @@ if !exists('g:ZFVimIM_openapi')
     let g:ZFVimIM_openapi = {}
 endif
 
+if !exists('g:ZFVimIM_openapi_limit_req')
+    let g:ZFVimIM_openapi_limit_req = 150
+endif
+
 function! ZFVimIM_openapi_http_req_wget(params)
     let cmd = 'wget -q -O - --timeout 2 -t 1'
     for item in get(a:params, 'header', [])
@@ -165,7 +169,8 @@ endfunction
 " {
 "   'ModuleName' : {
 "     'updating' : {
-"       'key' : 1,
+"       '*' : jobId, // used if g:ZFVimIM_openapi_limit_req
+"       'key' : jobId,
 "     },
 "     'cache' : {
 "       'key' : [], // results
@@ -199,12 +204,22 @@ function! s:updateWithCache(ret, moduleName, key, option)
         call extend(a:ret, cache)
         return
     endif
-    if get(moduleState['updating'], a:key, 0)
-        return
+    if g:ZFVimIM_openapi_limit_req > 0
+        if get(moduleState['updating'], '*', 0) > 0
+            call ZFGroupJobStop(get(moduleState['updating'], '*', 0))
+        endif
+    else
+        if get(moduleState['updating'], a:key, 0) > 0
+            return
+        endif
     endif
-    let moduleState['updating'][a:key] = 1
 
     let jobList = []
+    if g:ZFVimIM_openapi_limit_req > 0
+        call add(jobList, {
+                    \   'jobCmd' : g:ZFVimIM_openapi_limit_req,
+                    \ })
+    endif
     if !ZFJobAvailable()
         " delay to reduce blink
         call add(jobList, {
@@ -221,10 +236,15 @@ function! s:updateWithCache(ret, moduleName, key, option)
                     \   'jobCmd' : 0,
                     \ })
     endif
-    call ZFGroupJobStart({
+    let jobId = ZFGroupJobStart({
                 \   'jobList' : jobList,
                 \   'onExit' : ZFJobFunc(function('s:updatePopup'), [a:key, a:option, a:moduleName]),
                 \ })
+    if g:ZFVimIM_openapi_limit_req > 0
+        let moduleState['updating']['*'] = jobId
+    else
+        let moduleState['updating'][a:key] = jobId
+    endif
 endfunction
 
 function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
@@ -232,6 +252,9 @@ function! s:updateOnFinish(key, option, moduleName, jobStatus, exitCode)
     if empty(moduleState)
         let a:jobStatus['exitCode'] = 'invalid_state'
         return
+    endif
+    if exists("moduleState['updating']['*']")
+        unlet moduleState['updating']['*']
     endif
     if exists("moduleState['updating'][a:key]")
         unlet moduleState['updating'][a:key]
