@@ -232,12 +232,13 @@ function! s:updateWithCache(ret, moduleName, key, option)
         call add(jobList, {
                     \   'jobCmd' : g:ZFVimIM_openapi_limit_req,
                     \ })
-    endif
-    if !ZFJobAvailable()
-        " delay to reduce blink
-        call add(jobList, {
-                    \   'jobCmd' : 0,
-                    \ })
+    else
+        if !ZFJobAvailable()
+            " delay to reduce blink
+            call add(jobList, {
+                        \   'jobCmd' : 0,
+                        \ })
+        endif
     endif
     call add(jobList, {
                 \   'jobCmd' : Cmd,

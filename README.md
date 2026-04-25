@@ -9,7 +9,7 @@ using thirdparty's openapi
 * `ZSaberLv0/ZFVimJob`, and `ZFJobAvailable()` must return 1
     * a builtin fallback is also implemented, enable it by `let g:ZFVimIM_openapi_jobFallback = 1`,
         but it may cause lag if no `ZFJobAvailable()` support
-* `wget` or `curl`
+* `wget` or `curl` or `python` depends on impl
 
 
 # How to use
@@ -25,11 +25,13 @@ once installed, input freely and see the changes
 
 # Configs
 
-* `let g:ZFVimIM_openapi_enable=1` :
+* `let g:ZFVimIM_openapi_enable = 1` :
     once installed, `wget` or `curl` would be invoked each time you input something,
     if you want to disable it temporarily,
     you may change this option
-* `let g:ZFVimIM_openapi_word_type='sentence'` :
+* `let g:ZFVimIM_openapi_limit_req = 150` :
+    limit request by a certain delay
+* `let g:ZFVimIM_openapi_word_type = 'sentence'` :
     within the IME popup, where to place the result,
     see also `ZFVimIM_complete()`
     * `sentence` : (default) placed at first of `sentence` type,
