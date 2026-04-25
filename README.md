@@ -18,6 +18,11 @@ using thirdparty's openapi
 Plug 'ZSaberLv0/ZFVimIM'
 Plug 'ZSaberLv0/ZFVimJob' " ZFVimJob is required for this db repo
 Plug 'ZSaberLv0/ZFVimIM_openapi'
+
+" choose impl you like
+" let g:ZFVimIM_openapi_baidu = 1
+" let g:ZFVimIM_openapi_baidu_xiaohe = 1
+" let g:ZFVimIM_openapi_sougou = 1
 ```
 
 once installed, input freely and see the changes

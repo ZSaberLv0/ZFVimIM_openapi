@@ -1,9 +1,8 @@
 
-if !get(g:, 'ZFVimIM_openapi_baidu_xiaohe', 0)
-    finish
-endif
-
 function! s:apiGetter(key, option)
+    if !get(g:, 'ZFVimIM_openapi_baidu_xiaohe', 0)
+        return ''
+    endif
     if empty(g:ZFVimIM_openapi_http_req) || !ZFVimIM_json_available()
         return ''
     endif

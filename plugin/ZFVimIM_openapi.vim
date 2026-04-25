@@ -2,7 +2,7 @@
 " {
 "   'YourModuleName' : {
 "     // (optional) whether enable
-"     'enable' : 1,
+"     'enable' : 1/0 or func(key, option),
 "
 "     // return the jobCmd
 "     'apiGetter' : func(key, option),
@@ -162,11 +162,20 @@ augroup ZFVimIM_openapi_augroup
     autocmd User ZFVimIM_event_OnDbInit call s:dbInit()
 augroup END
 
+function! s:enable(module, key, option)
+    let Fn = get(a:module, 'enable', 1)
+    if ZFJobFuncCallable(Fn)
+        return ZFJobFuncCall(Fn, [a:key, a:option])
+    else
+        return Fn
+    endif
+endfunction
+
 " ============================================================
 " fallback impl, sync, may block
 function! s:fallback(ret, moduleName, key, option)
     let module = g:ZFVimIM_openapi[a:moduleName]
-    if !get(module, 'enable', 1)
+    if !s:enable(module, a:key, a:option)
         return
     endif
     let Cmd = ZFJobFuncCall(module['apiGetter'], [a:key, a:option])
@@ -197,7 +206,7 @@ endif
 let s:keyLatest = ''
 function! s:updateWithCache(ret, moduleName, key, option)
     let module = g:ZFVimIM_openapi[a:moduleName]
-    if !get(module, 'enable', 1)
+    if !s:enable(module, a:key, a:option)
         return
     endif
     let Cmd = ZFJobFuncCall(module['apiGetter'], [a:key, a:option])

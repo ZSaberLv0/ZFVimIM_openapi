@@ -1,10 +1,9 @@
 
-if !get(g:, 'ZFVimIM_openapi_sougou', 1)
-    finish
-endif
-
 let s:scriptPath = expand('<sfile>:p:h:h') . '/misc'
 function! s:apiGetter(key, option)
+    if !get(g:, 'ZFVimIM_openapi_sougou', 0)
+        return ''
+    endif
     if empty(g:ZFVimIM_openapi_py)
         return ''
     endif
