@@ -66,8 +66,21 @@ if !exists('g:ZFVimIM_openapi_http_req')
         let g:ZFVimIM_openapi_http_req = ''
     endif
 endif
-if empty(g:ZFVimIM_openapi_http_req)
-    finish
+
+" ============================================================
+if !exists('g:ZFVimIM_openapi_py')
+    if 0
+    elseif executable('py3')
+        let g:ZFVimIM_openapi_py = 'py3'
+    elseif executable('python3')
+        let g:ZFVimIM_openapi_py = 'python3'
+    elseif executable('py')
+        let g:ZFVimIM_openapi_py = 'py'
+    elseif executable('python')
+        let g:ZFVimIM_openapi_py = 'python'
+    else
+        let g:ZFVimIM_openapi_py = ''
+    endif
 endif
 
 " ============================================================

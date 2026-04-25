@@ -1,8 +1,6 @@
-from __future__ import print_function
+import io
 import struct
 import sys
-import os
-import time
 
 try:
     # Python 3
@@ -124,6 +122,12 @@ def get_cloud_words(keys):
     return parse_result(result)
 
 if __name__ == "__main__":
+    # Python 3
+    if sys.version_info >= (3, 0):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    # Python 2
+    else:
+        sys.stdout = io.open(sys.stdout.fileno(), 'w', encoding='utf-8')
     if len(sys.argv) > 1 and len(sys.argv[1]) > 0:
         matched_list = get_cloud_words(sys.argv[1])
         if matched_list:

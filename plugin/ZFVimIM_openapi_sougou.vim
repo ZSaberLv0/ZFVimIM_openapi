@@ -3,26 +3,12 @@ if !get(g:, 'ZFVimIM_openapi_sougou', 1)
     finish
 endif
 
-if 0
-elseif executable('py3')
-    let s:py = 'py3'
-elseif executable('python3')
-    let s:py = 'python3'
-elseif executable('py')
-    let s:py = 'py'
-elseif executable('python')
-    let s:py = 'python'
-else
-    let s:py = ''
-endif
-
-if s:py == ''
-    finish
-endif
-
 let s:scriptPath = expand('<sfile>:p:h:h') . '/misc'
 function! s:apiGetter(key, option)
-    return printf('%s %s/sougou.py "%s"', s:py, s:scriptPath, a:key)
+    if empty(g:ZFVimIM_openapi_py)
+        return ''
+    endif
+    return printf('%s "%s" "%s"', g:ZFVimIM_openapi_py, CygpathFix_absPath(printf("%s/sougou.py", s:scriptPath)), a:key)
 endfunction
 
 " output: plain result text
