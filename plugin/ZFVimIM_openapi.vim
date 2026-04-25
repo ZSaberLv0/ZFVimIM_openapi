@@ -17,18 +17,86 @@ if !exists('g:ZFVimIM_openapi')
     let g:ZFVimIM_openapi = {}
 endif
 
-if !exists('g:ZFVimIM_openapi_http_exe')
-    if executable('wget')
-        let g:ZFVimIM_openapi_http_exe = 'wget -q -O - --timeout 2 -t 1'
+function! ZFVimIM_openapi_http_req_wget(params)
+    let cmd = 'wget -q -O - --timeout 2 -t 1'
+    for item in get(a:params, 'header', [])
+        let cmd .= printf(' --header "%s"', substitute(item, '"', '\\"', 'g'))
+    endfor
+    if !empty(get(a:params, 'body', ''))
+        let cmd .= printf(' --post-data "%s"', substitute(a:params['body'], '"', '\\"', 'g'))
+    endif
+    let cmd .= printf(' "%s"', a:params['url'])
+    return cmd
+endfunction
+
+function! ZFVimIM_openapi_http_req_curl(params)
+    let cmd = 'curl -s'
+    if !empty(get(a:params, 'method', ''))
+        let cmd .= ' -X ' . a:params['method']
+    endif
+    for item in get(a:params, 'header', [])
+        let cmd .= printf(' -H "%s"', substitute(item, '"', '\\"', 'g'))
+    endfor
+    if !empty(get(a:params, 'body', ''))
+        let cmd .= printf(' -d "%s"', substitute(a:params['body'], '"', '\\"', 'g'))
+    endif
+    let cmd .= ' '
+    let cmd .= printf(' "%s"', a:params['url'])
+    return cmd
+endfunction
+
+" params: {
+"   'method' : 'POST/GET',
+"   'url' : 'http://xxx',
+"   'header' : ['xxx', ...],
+"   'body' : 'xxx',
+" }
+" return: job cmd
+if !exists('g:ZFVimIM_openapi_http_req')
+    if 0
+    elseif executable('wget')
+        let g:ZFVimIM_openapi_http_req = 'ZFVimIM_openapi_http_req_wget'
     elseif executable('curl')
-        let g:ZFVimIM_openapi_http_exe = 'curl -s'
+        let g:ZFVimIM_openapi_http_req = 'ZFVimIM_openapi_http_req_curl'
     else
-        let g:ZFVimIM_openapi_http_exe = ''
+        let g:ZFVimIM_openapi_http_req = ''
     endif
 endif
-if empty(g:ZFVimIM_openapi_http_exe)
+if empty(g:ZFVimIM_openapi_http_req)
     finish
 endif
+
+" ============================================================
+function! s:url_encode_char(str)
+    let n = char2nr(a:str)
+    if n <= 0x7F
+        return printf('%%%02x', n)
+    elseif n <= 0x07FF
+        let c0 = or(and(n / 64, 0x1F), 0xC0)
+        let c1 = or(and(n, 0x3F), 0x80)
+        return printf('%%%02x%%%02x', c0, c1)
+    elseif n <= 0xFFFF
+        let c0 = or(and(n / 4096, 0x0F), 0xE0)
+        let c1 = or(and(n / 64, 0x3F), 0x80)
+        let c2 = or(and(n, 0x3F), 0x80)
+        return printf('%%%02x%%%02x%%%02x', c0, c1, c2)
+    endif
+    return str
+endfunction
+function! s:url_encode(str)
+    let str = a:str
+    let str = substitute(str, '\([^A-Za-z0-9_.~-]\)', '\=s:url_encode_char(submatch(1))', 'g')
+    return str
+endfunction
+function! ZFVimIM_openapi_http_url_gen(url, params)
+    let url = a:url
+    let token = stridx(url, '?') >= 0 ? '&' : '?'
+    for key in keys(a:params)
+        let url .= token . key . '=' . s:url_encode(a:params[key])
+        let token = '&'
+    endfor
+    return url
+endfunction
 
 " ============================================================
 if !exists('s:fallbackMode')

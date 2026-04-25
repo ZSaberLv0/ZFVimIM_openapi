@@ -1,13 +1,24 @@
 
-if !get(g:, 'ZFVimIM_openapi_baidu', 1)
+if !get(g:, 'ZFVimIM_openapi_baidu', 0)
     finish
 endif
 
 function! s:apiGetter(key, option)
-    if empty(g:ZFVimIM_openapi_http_exe) || !ZFVimIM_json_available()
+    if empty(g:ZFVimIM_openapi_http_req) || !ZFVimIM_json_available()
         return ''
     endif
-    return g:ZFVimIM_openapi_http_exe . ' "http://olime.baidu.com/py?rn=0&pn=20&py=' . a:key . '"'
+    try
+        silent! let Fn = function(g:ZFVimIM_openapi_http_req)
+    catch
+        return ''
+    endtry
+    return Fn({
+                \   'url' : ZFVimIM_openapi_http_url_gen('http://olime.baidu.com/py', {
+                \     'rn' : '0',
+                \     'pn' : '20',
+                \     'py' : a:key,
+                \   }),
+                \ })
 endfunction
 
 " {"0":[[["我的",4,{"pinyin":"wo'de","type":"IMEDICT"}]]],"1":"wo'de","result":[null]}
